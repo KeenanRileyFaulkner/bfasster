@@ -65,6 +65,7 @@ class Vivado:
             "top": self.top,
             "edif": "viv_synth.edif",
             "dcp": "synth.dcp",
+            "io": "iofile.txt",
         }
         synth_json = json.dumps(synth, indent=4)
         with open(self.output / "synth.json", "w") as f:

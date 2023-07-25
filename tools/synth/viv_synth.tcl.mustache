@@ -18,7 +18,7 @@ write_edif -force {{ edif }}
 write_checkpoint -force -file {{ dcp }}
 
 {{#io}}
-report_io -force -file {{ io_file }}
+report_io -force -file {{ . }}
 
 {{/io}}
 } ] } { exit 1 }
