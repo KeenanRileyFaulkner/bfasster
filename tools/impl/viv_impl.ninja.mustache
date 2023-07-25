@@ -1,0 +1,6 @@
+rule impl_tcl
+    command = chevron -d {{ json }} $in >$out
+
+build impl.tcl: impl_tcl {{ impl_library }}/viv_impl.tcl.mustache
+
+build viv_impl.v viv_impl.edif impl.dcp TOP.bit util: vivado impl.tcl | {{ synth_edif }} {{ top }}.xdc

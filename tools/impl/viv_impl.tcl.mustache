@@ -1,0 +1,22 @@
+if { [ catch {
+read_edif {{ synth_edif }}
+set_property top_file {{ synth_edif }} [current_fileset]
+link_design -part {{ part }}
+{{#xdc}}
+read_xdc {{ . }}
+
+{{/xdc}}
+set_property design_mode GateLvl [current_fileset]
+opt_design
+place_design
+route_design
+write_checkpoint -force -file {{ dcp }}
+write_edif -force -file {{ impl_edif }}
+write_verilog -force -file {{ netlist }}
+report_utilization -file {{ util_file }}
+{{#bit}}
+write_bitstream -force {{ . }}
+
+{{/bit}}
+} ] } { exit 1 }
+exit

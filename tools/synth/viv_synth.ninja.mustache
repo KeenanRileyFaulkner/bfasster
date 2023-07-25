@@ -1,0 +1,13 @@
+rule synth_tcl
+    command = chevron -d {{ json }} $in >$out
+
+rule vivado_ioparse
+    command = {{ utils }}/vivado_ioparse $in >$out
+    description = vivado_ioparse $in >$out
+
+build synth.tcl: synth_tcl {{ synth_library }}/viv_synth.tcl.mustache
+
+build {{ top }}.xdc: vivado_ioparse io
+
+build viv_synth.edif synth.dcp io: vivado synth.tcl | {{#verilog}}{{.}}{{/verilog}} {{#system_verilog}}{{.}}{{/system_verilog}}
+
