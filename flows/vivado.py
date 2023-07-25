@@ -28,8 +28,6 @@ class Vivado:
         self.synth_library = self.root / "tools" / "synth"
         self.impl_library = self.root / "tools" / "impl"
 
-        self.sources = self.specify_sources()
-
     def create_output_dir(self):
         self.output.mkdir(parents=True, exist_ok=True)
 
@@ -37,17 +35,6 @@ class Vivado:
         vivado_ninja = self.vivado_library / "vivado.ninja"
         master_ninja = self.output / "build.ninja"
         shutil.copy(vivado_ninja, master_ninja)
-
-    def specify_sources(self):
-        """Specify the design sources to use in the flow"""
-        sources = []
-        if self.v:
-            for source in self.v:
-                sources.append(source)
-        if self.sv:
-            for source in self.sv:
-                sources.append(source)
-        return sources
 
     def create(self):
         self.write_json_files()
@@ -80,7 +67,7 @@ class Vivado:
             "dcp": "impl.dcp",
             "impl_edif": "viv_impl.edif",
             "netlist": "viv_impl.v",
-            "util_file": str(self.utils),
+            "util_file": "utilization.txt",
             "bit": self.top + ".bit",
         }
         impl_json = json.dumps(impl, indent=4)
@@ -130,7 +117,7 @@ class Vivado:
         """Create the top level ninja file that will run the synthesis and implementation ninja files"""
         with open(self.output / "build.ninja", "a") as f:
             f.write("rule configure\n")
-            f.write("    command = python flows/vivado.py\n")
+            f.write(f"    command = python {self.root}/flows/vivado.py\n")
             f.write("    generator = 1\n\n")
             f.write("build build.ninja: configure ")
             f.write(f"{self.root}/tools/synth/viv_synth.ninja.mustache ")

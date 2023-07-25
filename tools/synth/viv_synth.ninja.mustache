@@ -7,7 +7,7 @@ rule vivado_ioparse
 
 build synth.tcl: synth_tcl {{ synth_library }}/viv_synth.tcl.mustache
 
-build {{ top }}.xdc: vivado_ioparse io
+build {{ top }}.xdc: vivado_ioparse iofile.txt
 
-build viv_synth.edif synth.dcp io: vivado synth.tcl | {{#verilog}}{{ . }}{{/verilog}} {{#system_verilog}}{{ . }}{{/system_verilog}}
+build viv_synth.edif synth.dcp iofile.txt: vivado synth.tcl | {{#verilog}}{{ . }}{{/verilog}} {{#system_verilog}}{{ . }}{{/system_verilog}}
 
