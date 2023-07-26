@@ -128,4 +128,4 @@ class Vivado:
 
 
 if __name__ == "__main__":
-    Vivado().create()
+    Vivado("alu").create()

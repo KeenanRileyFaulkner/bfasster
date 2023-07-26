@@ -23,7 +23,7 @@ NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and
 _or_
 
 ```
-python flows/vivado.py
+python bfasster/flows/vivado.py
 cd designs/byu/alu/out
 ninja
 ```
