@@ -58,9 +58,6 @@ if __name__ == "__main__":
         "--design", type=pathlib.Path, help="Design directory for single design flows"
     )
     parser.add_argument("--flow", type=str, help="Flow to run for single design flows")
-    parser.add_argument(
-        "-j", "--threads", type=int, default=1, help="Number of threads"
-    )
     args = parser.parse_args()
 
     check_args(args)
