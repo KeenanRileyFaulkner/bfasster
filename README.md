@@ -9,12 +9,21 @@ The project is currently in demo mode, with few designs and flows supported as c
 
 ### Usage:
 
-```py
-python bfasster.py
-```
+<pre>Usage:<code>
+    python bfasster.py [--yaml YAML] [--design DESIGN] [--flow FLOW]
+
+options:
+    --yaml YAML         The yaml experiment to run, same as with bfasst
+    --design DESIGN     The design to run
+    --flow FLOW         The flow to use for the specified design
+
+NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and flow
+</code></pre>
+
 _or_
-```py
+
+```
 python flows/vivado.py
-cd designs/add4/out
+cd designs/byu/alu/out
 ninja
 ```
