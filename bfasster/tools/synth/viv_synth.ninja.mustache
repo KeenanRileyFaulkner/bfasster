@@ -3,7 +3,7 @@ rule synth_tcl
 
 rule vivado_ioparse
     command = {{ utils }}/vivado_ioparse <$in >$out
-    description = vivado_ioparse $in >$out
+    description = vivado_ioparse <$in >$out
 
 build synth.tcl: synth_tcl {{ synth_library }}/viv_synth.tcl.mustache
 
