@@ -1,0 +1,7 @@
+rule run_design
+    command = cd $in; ninja
+    description = Running ninja for $in
+
+{{#design_dir}}
+build out: run_design {{.}}/out
+{{/design_dir}}

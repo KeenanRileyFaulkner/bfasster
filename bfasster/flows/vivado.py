@@ -8,16 +8,16 @@ import shutil
 class Vivado:
     """Flow to create Vivado synthesis and implementation ninja snippets."""
 
-    def __init__(self):
+    def __init__(self, design):
         self.root = pathlib.Path(__file__).parent.parent.parent
         self.bfasster = self.root / "bfasster"
 
-        self.design = self.root / "designs" / "add4"
+        self.design = self.root / "designs" / "byu" / design
         self.output = self.design / "out"
         self.create_output_dir()
 
-        self.top = "add4"
-        self.v = [str(self.design / "add4.v")]
+        self.top = design
+        self.v = [str(self.design / f"{design}.v")]
         self.sv = None
 
         self.part = "xc7a100tcsg324-1"
