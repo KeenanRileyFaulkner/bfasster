@@ -1,6 +1,6 @@
 import pathlib
 import subprocess
-from flows.flow import get_flow
+from bfasster.flows.flow import get_flow
 
 
 class ApplicationRunner:
