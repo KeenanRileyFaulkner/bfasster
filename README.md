@@ -23,7 +23,8 @@ NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and
 _or_
 
 ```
-python bfasster/flows/vivado.py
-cd designs/byu/alu/out
+python bfasster/flows/vivado.py [--design DESIGN]
+cd designs/{DESIGN}/out
 ninja
 ```
+In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (such as byu/alu).
