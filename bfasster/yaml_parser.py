@@ -12,7 +12,7 @@ class YamlParser:
     def __init__(self, yaml_path):
         self.yaml_path = yaml_path
 
-    def parse(self):
+    def parse_design_flow(self):
         """Parse a yaml file into design paths and an instance of the specified flow for each design"""
         self.experiment_props = None
         self.__read_experiment_yaml()
@@ -83,3 +83,14 @@ class YamlParser:
         for design in self.design_paths:
             flow = get_flow(self.experiment_props["flow"])(design)
             self.flows.append(flow)
+
+    def parse_top_module(self):
+        """Parse a yaml file to obtain a top module"""
+        self.experiment_props = None
+        self.__read_experiment_yaml()
+        return self.__check_for_top()
+
+    def __check_for_top(self):
+        if "top" not in self.experiment_props:
+            error(f"Experiment {self.yaml_path} does not specify a top module")
+        return self.experiment_props["top"]
