@@ -1,16 +1,19 @@
-"""Parse a yaml file to get a flow and a list of target designs"""
+"""Parse a yaml file to obtain a flow and a list of target designs"""
 import pathlib
 import yaml
-from bfasster.flows.flow import get_flow
+from bfasster.flows.flow_utils import get_flow
 from bfasster.utils import error
 from bfasster import paths
 
 
 class YamlParser:
+    """Parses a yaml file to obtain a flow and list of target designs"""
+
     def __init__(self, yaml_path):
         self.yaml_path = yaml_path
 
     def parse(self):
+        """Parse a yaml file into design paths and an instance of the specified flow for each design"""
         self.experiment_props = None
         self.__read_experiment_yaml()
         self.__check_experiment_props_for_yaml()

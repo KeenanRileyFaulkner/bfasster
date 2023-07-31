@@ -1,6 +1,5 @@
 """Flow to create Vivado synthesis and implementation ninja snippets."""
 from argparse import ArgumentParser
-import pathlib
 import chevron
 import json
 import shutil

@@ -1,7 +1,8 @@
+"""Script to run a flow on one or more designs."""
 from argparse import ArgumentParser
 import pathlib
 import subprocess
-from bfasster.flows.flow import get_flow
+from bfasster.flows.flow_utils import get_flow
 from bfasster.yaml_parser import YamlParser
 from bfasster.utils import error
 from bfasster.paths import ROOT_PATH, DESIGNS_PATH
@@ -9,21 +10,25 @@ import chevron
 
 
 class ApplicationRunner:
+    """Runs a given flow on one or more designs using Ninja."""
+
     def run(self, args):
+        """Run a flow on one or more designs."""
+
         # save the flow and design paths
-        self.parse_args(args)
+        self.__parse_args(args)
 
         # run the flows to create the ninja files
         for flow in self.flows:
             flow.create()
 
         # populate the master ninja template
-        self.create_master_ninja()
+        self.__create_master_ninja()
 
         # run the build.ninja file
-        self.run_ninja()
+        self.__run_ninja()
 
-    def parse_args(self, args):
+    def __parse_args(self, args):
         if args.yaml:
             parser = YamlParser(args.yaml)
             parser.parse()
@@ -33,13 +38,13 @@ class ApplicationRunner:
             self.designs = [str(DESIGNS_PATH / args.design)]
             self.flows = [get_flow(args.flow)(args.design)]
 
-    def create_master_ninja(self):
-        master_ninja = self.populate_template()
+    def __create_master_ninja(self):
+        master_ninja = self.__populate_template()
 
         with open(ROOT_PATH / "build.ninja", "w") as f:
             f.write(master_ninja)
 
-    def populate_template(self):
+    def __populate_template(self):
         with open(ROOT_PATH / "master.ninja.mustache") as f:
             master_ninja = chevron.render(
                 f,
@@ -50,7 +55,7 @@ class ApplicationRunner:
 
         return master_ninja
 
-    def run_ninja(self):
+    def __run_ninja(self):
         subprocess.Popen("ninja", cwd=ROOT_PATH)
 
 
