@@ -31,7 +31,7 @@ class ApplicationRunner:
     def __parse_args(self, args):
         if args.yaml:
             parser = YamlParser(args.yaml)
-            parser.parse()
+            parser.parse_design_flow()
             self.designs = parser.design_paths
             self.flows = parser.flows
         else:
