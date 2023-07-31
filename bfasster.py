@@ -4,13 +4,11 @@ import subprocess
 from bfasster.flows.flow import get_flow
 from bfasster.yaml_parser import YamlParser
 from bfasster.utils import error
+from bfasster.paths import ROOT_PATH, DESIGNS_PATH
 import chevron
 
 
 class ApplicationRunner:
-    def __init__(self):
-        self.root = pathlib.Path(__file__).parent
-
     def run(self, args):
         # save the flow and design paths
         self.parse_args(args)
@@ -30,23 +28,20 @@ class ApplicationRunner:
             parser = YamlParser(args.yaml)
             parser.parse()
             self.designs = parser.design_paths
-            print(self.designs)
             self.flows = parser.flows
         else:
-            design = self.root / "designs" / args.design
+            design = DESIGNS_PATH / args.design
             self.designs = [str(design)]
-            print(self.designs)
             self.flows = [get_flow(args.flow)(str(design).split("/")[-1])]
 
     def create_master_ninja(self):
         master_ninja = self.populate_template()
 
-        with open(self.root / "build.ninja", "w") as f:
+        with open(ROOT_PATH / "build.ninja", "w") as f:
             f.write(master_ninja)
 
     def populate_template(self):
-        print(self.designs)
-        with open(self.root / "master.ninja.mustache") as f:
+        with open(ROOT_PATH / "master.ninja.mustache") as f:
             master_ninja = chevron.render(
                 f,
                 {
@@ -57,7 +52,7 @@ class ApplicationRunner:
         return master_ninja
 
     def run_ninja(self):
-        subprocess.Popen("ninja", cwd=self.root)
+        subprocess.Popen("ninja", cwd=ROOT_PATH)
 
 
 def check_args(args):

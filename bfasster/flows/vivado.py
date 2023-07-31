@@ -3,16 +3,20 @@ import pathlib
 import chevron
 import json
 import shutil
+from bfasster.paths import (
+    DESIGNS_PATH,
+    BFASSTER_PATH,
+    TOOLS_PATH,
+    UTILS_PATH,
+    FLOWS_PATH,
+)
 
 
 class Vivado:
     """Flow to create Vivado synthesis and implementation ninja snippets."""
 
     def __init__(self, design):
-        self.root = pathlib.Path(__file__).parent.parent.parent
-        self.bfasster = self.root / "bfasster"
-
-        self.design = self.root / "designs" / "byu" / design
+        self.design = DESIGNS_PATH / "byu" / design
         self.output = self.design / "out"
         self.create_output_dir()
 
@@ -22,12 +26,10 @@ class Vivado:
 
         self.part = "xc7a100tcsg324-1"
 
-        self.utils = self.bfasster / "bin"
-
-        self.vivado_library = self.bfasster / "tools" / "vivado"
+        self.vivado_library = TOOLS_PATH / "vivado"
         self.copy_vivado_ninja()
-        self.synth_library = self.bfasster / "tools" / "synth"
-        self.impl_library = self.bfasster / "tools" / "impl"
+        self.synth_library = TOOLS_PATH / "synth"
+        self.impl_library = TOOLS_PATH / "impl"
 
     def create_output_dir(self):
         self.output.mkdir(parents=True, exist_ok=True)
@@ -82,12 +84,12 @@ class Vivado:
 
     def create_synth_ninja(self):
         """Create ninja snippets for vivado synthesis in build.ninja"""
-        with open(self.bfasster / "tools" / "synth" / "viv_synth.ninja.mustache") as f:
+        with open(TOOLS_PATH / "synth" / "viv_synth.ninja.mustache") as f:
             synth_ninja = chevron.render(
                 f,
                 {
                     "json": str(self.output / "synth.json"),
-                    "utils": self.utils,
+                    "utils": str(UTILS_PATH),
                     "synth_library": self.synth_library,
                     "top": self.top,
                     "verilog": self.v,
@@ -100,7 +102,7 @@ class Vivado:
 
     def create_impl_ninja(self):
         """Create ninja snippets for vivado implementation in build.ninja"""
-        with open(self.bfasster / "tools" / "impl" / "viv_impl.ninja.mustache") as f:
+        with open(TOOLS_PATH / "impl" / "viv_impl.ninja.mustache") as f:
             impl_ninja = chevron.render(
                 f,
                 {
@@ -118,12 +120,12 @@ class Vivado:
         """Create the top level ninja file that will run the synthesis and implementation ninja files"""
         with open(self.output / "build.ninja", "a") as f:
             f.write("rule configure\n")
-            f.write(f"    command = python {self.bfasster}/flows/vivado.py\n")
+            f.write(f"    command = python {BFASSTER_PATH}/flows/vivado.py\n")
             f.write("    generator = 1\n\n")
             f.write("build build.ninja: configure ")
-            f.write(f"{self.bfasster}/tools/synth/viv_synth.ninja.mustache ")
-            f.write(f"{self.bfasster}/tools/impl/viv_impl.ninja.mustache ")
-            f.write(f"{self.bfasster}/flows/vivado.py ")
+            f.write(f"{TOOLS_PATH}/synth/viv_synth.ninja.mustache ")
+            f.write(f"{TOOLS_PATH}/impl/viv_impl.ninja.mustache ")
+            f.write(f"{FLOWS_PATH}/vivado.py ")
             f.write(f"{self.vivado_library}/vivado.ninja\n")
 
 
