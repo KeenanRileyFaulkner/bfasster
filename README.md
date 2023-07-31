@@ -2,8 +2,8 @@
 
 This project removes a lot of overhead from the [bfasst project](https://github.com/byuccl/bfasst). 
 * It takes advantage of the ninja build tool to automatically handle job creation, up-to-date checking of dependencies, parallel processing, and io redirection. 
-* It uses chevron, the python implementation of the mustache templating engine.
-* It keeps python as its base language, rather than switching to bash in order to minimize the learning curve in transitioning to the new architecture.
+* It uses chevron, the python implementation of the mustache templating engine to template the scripts used for common operations such as fpga cad synthesis, implementation, and even the running of other ninja files at the top level.
+* It keeps python as its base language, rather than switching to bash in order to minimize the learning curve and maximize portability in transitioning to the new architecture.
 
 The project is currently in demo mode, with few designs and flows supported as compared to the original bfasst. The hope is to migrate all flows and designs from the original project over to this new architecture.
 
