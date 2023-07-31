@@ -11,7 +11,20 @@ class ApplicationRunner:
         self.root = pathlib.Path(__file__).parent
 
     def run(self, args):
-        # create and execute a yaml parser
+        # save the flow and design paths
+        self.parse_args(args)
+
+        # run the flows to create the ninja files
+        for flow in self.flows:
+            flow.create()
+
+        # populate the master ninja template
+        self.create_master_ninja()
+
+        # run the build.ninja file
+        self.run_ninja()
+
+    def parse_args(self, args):
         if args.yaml:
             parser = YamlParser(args.yaml)
             parser.parse()
@@ -21,11 +34,13 @@ class ApplicationRunner:
             self.designs = [args.design]
             self.flows = [args.flow]
 
-        # run the flows to create the ninja files
-        for flow in self.flows:
-            flow.create()
+    def create_master_ninja(self):
+        master_ninja = self.populate_template()
 
-        # populate the master ninja template
+        with open(self.root / "build.ninja", "w") as f:
+            f.write(master_ninja)
+
+    def populate_template(self):
         with open(self.root / "master.ninja.mustache") as f:
             master_ninja = chevron.render(
                 f,
@@ -34,11 +49,7 @@ class ApplicationRunner:
                 },
             )
 
-        with open(self.root / "build.ninja", "w") as f:
-            f.write(master_ninja)
-
-        # run the build.ninja file
-        self.run_ninja()
+        return master_ninja
 
     def run_ninja(self):
         subprocess.Popen("ninja", cwd=self.root)
