@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import pathlib
 import subprocess
+from bfasster.flows.flow import get_flow
 from bfasster.yaml_parser import YamlParser
 from bfasster.utils import error
 import chevron
@@ -29,10 +30,13 @@ class ApplicationRunner:
             parser = YamlParser(args.yaml)
             parser.parse()
             self.designs = parser.design_paths
+            print(self.designs)
             self.flows = parser.flows
         else:
-            self.designs = [args.design]
-            self.flows = [args.flow]
+            design = self.root / "designs" / args.design
+            self.designs = [str(design)]
+            print(self.designs)
+            self.flows = [get_flow(args.flow)(str(design).split("/")[-1])]
 
     def create_master_ninja(self):
         master_ninja = self.populate_template()
@@ -41,6 +45,7 @@ class ApplicationRunner:
             f.write(master_ninja)
 
     def populate_template(self):
+        print(self.designs)
         with open(self.root / "master.ninja.mustache") as f:
             master_ninja = chevron.render(
                 f,
