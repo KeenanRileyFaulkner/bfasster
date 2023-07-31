@@ -1,4 +1,5 @@
 """Flow to create Vivado synthesis and implementation ninja snippets."""
+from argparse import ArgumentParser
 import pathlib
 import chevron
 import json
@@ -16,12 +17,12 @@ class Vivado:
     """Flow to create Vivado synthesis and implementation ninja snippets."""
 
     def __init__(self, design):
-        self.design = DESIGNS_PATH / "byu" / design
+        self.design = DESIGNS_PATH / design
         self.output = self.design / "out"
         self.create_output_dir()
 
-        self.top = design
-        self.v = [str(self.design / f"{design}.v")]
+        self.top = design.split("/")[-1]
+        self.v = [str(self.design / f"{str(design).split('/')[-1]}.v")]
         self.sv = None
 
         self.part = "xc7a100tcsg324-1"
@@ -130,4 +131,7 @@ class Vivado:
 
 
 if __name__ == "__main__":
-    Vivado("alu").create()
+    parser = ArgumentParser()
+    parser.add_argument("--design", type=str, help="Design to run")
+    args = parser.parse_args()
+    Vivado(args.design).create()

@@ -30,9 +30,8 @@ class ApplicationRunner:
             self.designs = parser.design_paths
             self.flows = parser.flows
         else:
-            design = DESIGNS_PATH / args.design
-            self.designs = [str(design)]
-            self.flows = [get_flow(args.flow)(str(design).split("/")[-1])]
+            self.designs = [str(DESIGNS_PATH / args.design)]
+            self.flows = [get_flow(args.flow)(args.design)]
 
     def create_master_ninja(self):
         master_ninja = self.populate_template()
@@ -66,7 +65,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--yaml", type=pathlib.Path, help="Yaml file with flow specs")
     parser.add_argument(
-        "--design", type=pathlib.Path, help="Design directory for single design flows"
+        "--design", type=str, help="Design directory for single design flows"
     )
     parser.add_argument("--flow", type=str, help="Flow to run for single design flows")
     args = parser.parse_args()

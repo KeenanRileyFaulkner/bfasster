@@ -78,6 +78,5 @@ class YamlParser:
 
     def __create_flows(self):
         for design in self.design_paths:
-            basename = design.split("/")[-1]
-            flow = get_flow(self.experiment_props["flow"])(basename)
+            flow = get_flow(self.experiment_props["flow"])(design)
             self.flows.append(flow)
