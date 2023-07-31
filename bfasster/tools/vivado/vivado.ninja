@@ -1,4 +1,0 @@
-rule vivado
-    command = vivado -mode batch -source $in
-    description = vivado $in
-

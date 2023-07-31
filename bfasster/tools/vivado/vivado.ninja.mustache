@@ -1,0 +1,10 @@
+rule vivado
+    command = vivado -mode batch -source $in >&-
+    description = vivado $in
+
+rule template
+    command = chevron -d $in >$out
+
+rule vivado_ioparse
+    command = {{ utils }}/vivado_ioparse <$in >$out
+    description = vivado_ioparse <$in >$out
