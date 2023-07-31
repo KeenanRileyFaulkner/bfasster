@@ -27,4 +27,4 @@ python bfasster/flows/vivado.py [--design DESIGN]
 cd designs/{DESIGN}/out
 ninja
 ```
-In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (such as byu/alu).
+In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (e.g. byu/alu).
