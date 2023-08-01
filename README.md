@@ -9,6 +9,8 @@ The project is currently in demo mode, with few designs and flows supported as c
 
 ### Usage:
 
+There are two steps two running any flow with any design(s): a ninja generation step and a run step. For convenience, a script is included to execute both steps sequentially with a single command:
+
 <pre>Usage:<code>
     python bfasster.py [--yaml YAML] [--design DESIGN] [--flow FLOW]
 
@@ -17,14 +19,13 @@ options:
     --design DESIGN     The design to run
     --flow FLOW         The flow to use for the specified design
 
-NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and flow
+
 </code></pre>
 
-_or_
+Alternatively, you can execute the ninja generation step entirely separate from the run step:
 
-```
+<pre style="padding-top:0"><code>
 python bfasster/flows/vivado.py [--design DESIGN]
-cd designs/{DESIGN}/out
 ninja
-```
-In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (e.g. byu/alu).
+</code></pre>
+In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (e.g. 'byu/alu').
