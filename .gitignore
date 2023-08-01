@@ -7,3 +7,5 @@ designs/**/out
 **/build.ninja
 
 bfasster.egg-info/*
+
+build/*
