@@ -1,7 +1,5 @@
-rule run_design
-    command = cd $in; ninja
-    description = Running ninja for $in
+rule configure
+    command = python {{ top_level_flow_path }}
+    generator = 1
 
-{{#design_dir}}
-build out: run_design {{.}}/out
-{{/design_dir}}
+build build.ninja: configure {{#deps}}{{ . }}{{/deps}}

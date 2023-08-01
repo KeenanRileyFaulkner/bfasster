@@ -18,12 +18,15 @@ class ApplicationRunner:
         # save the flow and design paths
         self.__parse_args(args)
 
-        # run the flows to create the ninja files
-        for flow in self.flows:
-            flow.create()
+        # recursively create an array of template and flow files that can trigger reruns
+        self.deps = self.flows[0].add_ninja_deps()
 
         # populate the master ninja template
         self.__create_master_ninja()
+
+        # run the flows to create the ninja files
+        for flow in self.flows:
+            flow.create()
 
         # run the build.ninja file
         self.__run_ninja()
@@ -41,15 +44,16 @@ class ApplicationRunner:
     def __create_master_ninja(self):
         master_ninja = self.__populate_template()
 
-        with open(ROOT_PATH / "build.ninja", "w") as f:
+        with open(ROOT_PATH / "build.ninja", "a") as f:
             f.write(master_ninja)
 
     def __populate_template(self):
-        with open(ROOT_PATH / "master.ninja.mustache") as f:
+        with open(ROOT_PATH / "master.ninja.mustache", "r") as f:
             master_ninja = chevron.render(
                 f,
                 {
-                    "design_dir": self.designs,
+                    "top_level_flow_path": self.flows[0].get_top_level_flow_path(),
+                    "deps": self.deps,
                 },
             )
 

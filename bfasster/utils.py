@@ -1,4 +1,5 @@
 import sys
+import functools
 
 
 class TermColor:
@@ -26,3 +27,17 @@ def error(*msg, returncode=-1):
 
     print_color(TermColor.RED, "ERROR:", " ".join(str(item) for item in msg))
     sys.exit(returncode)
+
+
+def only_once(func):
+    """Decorator to ensure a function is only called once per program run
+    (singleton method for non-singleton class)."""
+    func._called = False
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not func._called:
+            func._called = True
+            return func(*args, **kwargs)
+
+    return wrapper

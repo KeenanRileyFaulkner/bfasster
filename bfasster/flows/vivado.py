@@ -5,11 +5,18 @@ import json
 from bfasster.paths import (
     DESIGNS_PATH,
     BFASSTER_PATH,
+    IMPL_TOOLS_PATH,
+    NINJA_BUILD_PATH,
+    ROOT_PATH,
+    SYNTH_TOOLS_PATH,
     TOOLS_PATH,
     UTILS_PATH,
     FLOWS_PATH,
+    VIVADO_RULES_PATH,
 )
+from bfasster.utils import only_once
 from bfasster.yaml_parser import YamlParser
+import code
 
 
 class Vivado:
@@ -17,21 +24,22 @@ class Vivado:
 
     def __init__(self, design):
         self.design = DESIGNS_PATH / design
-        self.output = self.design / "out"
-        self.__create_output_dir()
+        self.build = ROOT_PATH / "build" / design
+        self.synth_output = self.build / "synth"
+        self.impl_output = self.build / "impl"
+        self.__create_build_dirs()
 
         self.top = YamlParser(self.design / "design.yaml").parse_top_module()
         self.__read_hdl_files()
 
-        self.part = "xc7a100tcsg324-1"
+        self.part = "xc7a200tlffg1156-2L"
 
-        self.vivado_library = TOOLS_PATH / "vivado"
         self.__create_vivado_ninja()
-        self.synth_library = TOOLS_PATH / "synth"
-        self.impl_library = TOOLS_PATH / "impl"
 
-    def __create_output_dir(self):
-        self.output.mkdir(parents=True, exist_ok=True)
+    def __create_build_dirs(self):
+        self.build.mkdir(parents=True, exist_ok=True)
+        self.synth_output.mkdir(exist_ok=True)
+        self.impl_output.mkdir(exist_ok=True)
 
     def __read_hdl_files(self):
         """Read the hdl files in the design directory"""
@@ -46,15 +54,16 @@ class Vivado:
             elif child.suffix == ".sv":
                 self.sv.append(str(child))
 
+    @only_once
     def __create_vivado_ninja(self):
-        with open(self.vivado_library / "vivado.ninja.mustache", "r") as f:
+        with open(VIVADO_RULES_PATH, "r") as f:
             vivado_ninja = chevron.render(
                 f,
                 {
                     "utils": str(UTILS_PATH),
                 },
             )
-        with open(self.output / "build.ninja", "w") as f:
+        with open(NINJA_BUILD_PATH, "w") as f:
             f.write(vivado_ninja)
 
     def create(self):
@@ -74,10 +83,11 @@ class Vivado:
             "top": self.top,
             "edif": "viv_synth.edif",
             "dcp": "synth.dcp",
-            "io": "iofile.txt",
+            "io": str(self.synth_output / "iofile.txt"),
+            "synth_output": str(self.synth_output),
         }
         synth_json = json.dumps(synth, indent=4)
-        with open(self.output / "synth.json", "w") as f:
+        with open(self.synth_output / "synth.json", "w") as f:
             f.write(synth_json)
 
     def __write_impl_json(self):
@@ -85,21 +95,22 @@ class Vivado:
         impl = {
             "synth_edif": "viv_synth.edif",
             "part": self.part,
-            "xdc": self.top + ".xdc",
+            "xdc": str(self.synth_output / (self.top + ".xdc")),
             "dcp": "impl.dcp",
             "impl_edif": "viv_impl.edif",
             "netlist": "viv_impl.v",
             "util_file": "utilization.txt",
-            "bit": self.top + ".bit",
+            "bit": str(self.impl_output / (self.top + ".bit")),
+            "impl_output": str(self.impl_output),
+            "synth_output": str(self.synth_output),
         }
         impl_json = json.dumps(impl, indent=4)
-        with open(self.output / "impl.json", "w") as f:
+        with open(self.impl_output / "impl.json", "w") as f:
             f.write(impl_json)
 
     def __create_ninja_files(self):
         self.__create_synth_ninja()
         self.__create_impl_ninja()
-        self.__create_master_ninja()
 
     def __create_synth_ninja(self):
         """Create ninja snippets for vivado synthesis in build.ninja"""
@@ -107,16 +118,17 @@ class Vivado:
             synth_ninja = chevron.render(
                 f,
                 {
-                    "json": str(self.output / "synth.json"),
+                    "synth_output": str(self.synth_output),
+                    "json": str(self.synth_output / "synth.json"),
                     "utils": str(UTILS_PATH),
-                    "synth_library": self.synth_library,
+                    "synth_library": SYNTH_TOOLS_PATH,
                     "top": self.top,
                     "verilog": self.v,
                     "system_verilog": self.sv,
                 },
             )
 
-        with open(self.output / "build.ninja", "a") as f:
+        with open(NINJA_BUILD_PATH, "a") as f:
             f.write(synth_ninja)
 
     def __create_impl_ninja(self):
@@ -125,27 +137,30 @@ class Vivado:
             impl_ninja = chevron.render(
                 f,
                 {
-                    "json": str(self.output / "impl.json"),
-                    "impl_library": self.impl_library,
+                    "impl_output": str(self.impl_output),
+                    "synth_output": str(self.synth_output),
+                    "json": str(self.impl_output / "impl.json"),
+                    "impl_library": IMPL_TOOLS_PATH,
                     "synth_edif": "viv_synth.edif",
                     "top": self.top,
                 },
             )
 
-        with open(self.output / "build.ninja", "a") as f:
+        with open(NINJA_BUILD_PATH, "a") as f:
             f.write(impl_ninja)
 
-    def __create_master_ninja(self):
-        """Create the top level ninja file that will run the synthesis and implementation ninja files"""
-        with open(self.output / "build.ninja", "a") as f:
-            f.write("rule configure\n")
-            f.write(f"    command = python {BFASSTER_PATH}/flows/vivado.py\n")
-            f.write("    generator = 1\n\n")
-            f.write("build build.ninja: configure ")
-            f.write(f"{TOOLS_PATH}/synth/viv_synth.ninja.mustache ")
-            f.write(f"{TOOLS_PATH}/impl/viv_impl.ninja.mustache ")
-            f.write(f"{FLOWS_PATH}/vivado.py ")
-            f.write(f"{self.vivado_library}/vivado.ninja\n")
+    @only_once
+    def add_ninja_deps(self, deps=[]):
+        """Add dependencies to the master ninja file that would cause it to rebuild if modified"""
+        deps.append(f"{TOOLS_PATH}/synth/viv_synth.ninja.mustache ")
+        deps.append(f"{TOOLS_PATH}/impl/viv_impl.ninja.mustache ")
+        deps.append(f"{FLOWS_PATH}/vivado.py ")
+        deps.append(f"{VIVADO_RULES_PATH}\n")
+
+        return deps
+
+    def get_top_level_flow_path(self):
+        return str(FLOWS_PATH / "vivado.py")
 
 
 if __name__ == "__main__":

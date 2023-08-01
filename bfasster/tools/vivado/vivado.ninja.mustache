@@ -1,5 +1,5 @@
 rule vivado
-    command = vivado -mode batch -source $in >&-
+    command = vivado -mode batch -journal $journal -log $log -source $in >&-
     description = vivado $in
 
 rule template
@@ -8,3 +8,4 @@ rule template
 rule vivado_ioparse
     command = {{ utils }}/vivado_ioparse <$in >$out
     description = vivado_ioparse <$in >$out
+
