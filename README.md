@@ -24,8 +24,8 @@ options:
 
 Alternatively, you can execute the ninja generation step entirely separate from the run step:
 
-<pre style="padding-top:0"><code>
-python bfasster/flows/vivado.py [--design DESIGN]
-ninja
+<pre style="padding-top:0">Usage:<code>
+    python bfasster/flows/vivado.py [--design DESIGN]
+    ninja
 </code></pre>
 In either use case, the design should be specified as a subdirectory of the included designs directory in this repo (e.g. 'byu/alu').
