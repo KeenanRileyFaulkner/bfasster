@@ -18,7 +18,7 @@ class ApplicationRunner:
         # save the flow and design paths
         self.__parse_args(args)
 
-        # recursively create an array of template and flow files that can trigger reruns
+        # recursively create an array of template and flow files that can trigger reruns.
         # currently, only one top level flow per program run is supported,
         # so we can just use the first flow to get the ninja deps
         self.deps = self.flows[0].add_ninja_deps()
