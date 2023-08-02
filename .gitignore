@@ -9,3 +9,5 @@ designs/**/out
 bfasster.egg-info/*
 
 build/*
+
+.Xil/*
