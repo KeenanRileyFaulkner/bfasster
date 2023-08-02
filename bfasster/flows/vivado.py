@@ -4,7 +4,6 @@ import chevron
 import json
 from bfasster.paths import (
     DESIGNS_PATH,
-    BFASSTER_PATH,
     IMPL_TOOLS_PATH,
     NINJA_BUILD_PATH,
     ROOT_PATH,
@@ -14,9 +13,8 @@ from bfasster.paths import (
     FLOWS_PATH,
     VIVADO_RULES_PATH,
 )
-from bfasster.utils import only_once
+from bfasster.utils import compare_json, only_once
 from bfasster.yaml_parser import YamlParser
-import code
 
 
 class Vivado:
@@ -87,8 +85,13 @@ class Vivado:
             "synth_output": str(self.synth_output),
         }
         synth_json = json.dumps(synth, indent=4)
-        with open(self.synth_output / "synth.json", "w") as f:
-            f.write(synth_json)
+
+        # check if the synth json file already exists and compare it to what we're about to write
+        need_to_overwrite = compare_json(self.synth_output / "synth.json", synth_json)
+
+        if need_to_overwrite:
+            with open(self.synth_output / "synth.json", "w") as f:
+                f.write(synth_json)
 
     def __write_impl_json(self):
         """Specify implementation arguments in a json file that chevron will use to fill in the tcl template"""
@@ -105,8 +108,13 @@ class Vivado:
             "synth_output": str(self.synth_output),
         }
         impl_json = json.dumps(impl, indent=4)
-        with open(self.impl_output / "impl.json", "w") as f:
-            f.write(impl_json)
+
+        # check if the impl json file already exists and compare it to what we're about to write
+        need_to_overwrite = compare_json(self.impl_output / "impl.json", impl_json)
+
+        if need_to_overwrite:
+            with open(self.impl_output / "impl.json", "w") as f:
+                f.write(impl_json)
 
     def __create_ninja_files(self):
         self.__create_synth_ninja()

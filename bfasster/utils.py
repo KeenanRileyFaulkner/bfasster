@@ -1,5 +1,6 @@
 import sys
 import functools
+import json
 
 
 class TermColor:
@@ -41,3 +42,23 @@ def only_once(func):
             return func(*args, **kwargs)
 
     return wrapper
+
+
+def compare_json(old_file, new_json):
+    """Takes an old json file a new json string and compares them to see if they are different"""
+    if not (old_file).is_file():
+        return True
+
+    with open(old_file, "r") as f:
+        old_json = json.load(f)
+        return sort_json(old_json) != sort_json(json.loads(new_json))
+
+
+def sort_json(item):
+    """Sorts a json object recursively"""
+    if isinstance(item, dict):
+        return sorted((k, sort_json(v)) for k, v in item.items())
+    if isinstance(item, list):
+        return sorted(sort_json(x) for x in item)
+    else:
+        return item
