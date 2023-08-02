@@ -41,8 +41,6 @@ class ApplicationRunner:
             self.designs = [str(DESIGNS_PATH / args.design)]
             self.flows = [get_flow(args.flow)(args.design)]
 
-        self.threads = min(args.threads, 8)
-
     def __create_master_ninja(self):
         master_ninja = self.__populate_template()
 
@@ -62,7 +60,7 @@ class ApplicationRunner:
         return master_ninja
 
     def __run_ninja(self):
-        subprocess.Popen(["ninja", f"-j{self.threads}"], cwd=ROOT_PATH)
+        subprocess.Popen("ninja", cwd=ROOT_PATH)
 
 
 def check_args(args):
@@ -70,9 +68,6 @@ def check_args(args):
         error("Cannot specify both a yaml file and a design/flow")
     elif not args.yaml and not (args.design and args.flow):
         error("Must specify either a yaml file or a design/flow")
-
-    if args.threads < 1:
-        error("You must use at least one thread")
 
 
 if __name__ == "__main__":
@@ -82,9 +77,6 @@ if __name__ == "__main__":
         "--design", type=str, help="Design directory for single design flows"
     )
     parser.add_argument("--flow", type=str, help="Flow to run for single design flows")
-    parser.add_argument(
-        "-j", "--threads", type=int, default=1, help="Number of threads to use"
-    )
     args = parser.parse_args()
 
     check_args(args)
