@@ -20,9 +20,14 @@ from bfasster.yaml_parser import YamlParser
 class Vivado:
     """Flow to create Vivado synthesis and implementation ninja snippets."""
 
-    def __init__(self, design):
+    def __init__(self, design, ooc=False):
         self.design = DESIGNS_PATH / design
-        self.build = ROOT_PATH / "build" / design
+
+        self.ooc = ooc
+        if ooc:
+            self.build = ROOT_PATH / "build" / design / "ooc"
+        else:
+            self.build = ROOT_PATH / "build" / design / "in_context"
         self.synth_output = self.build / "synth"
         self.impl_output = self.build / "impl"
         self.__create_build_dirs()
@@ -31,8 +36,6 @@ class Vivado:
         self.__read_hdl_files()
 
         self.part = "xc7a200tlffg1156-2L"
-
-        self.__create_vivado_ninja()
 
     def __create_build_dirs(self):
         self.build.mkdir(parents=True, exist_ok=True)
@@ -52,8 +55,13 @@ class Vivado:
             elif child.suffix == ".sv":
                 self.sv.append(str(child))
 
+    def create(self):
+        self.__create_rule_snippets()
+        self.__write_json_files()
+        self.__create_build_snippets()
+
     @only_once
-    def __create_vivado_ninja(self):
+    def __create_rule_snippets(self):
         with open(VIVADO_RULES_PATH, "r") as f:
             vivado_ninja = chevron.render(
                 f,
@@ -61,12 +69,8 @@ class Vivado:
                     "utils": str(UTILS_PATH),
                 },
             )
-        with open(NINJA_BUILD_PATH, "w") as f:
+        with open(NINJA_BUILD_PATH, "a") as f:
             f.write(vivado_ninja)
-
-    def create(self):
-        self.__write_json_files()
-        self.__create_ninja_files()
 
     def __write_json_files(self):
         self.__write_synth_json()
@@ -81,7 +85,7 @@ class Vivado:
             "top": self.top,
             "edif": "viv_synth.edif",
             "dcp": "synth.dcp",
-            "io": str(self.synth_output / "iofile.txt"),
+            "io": str(self.synth_output / "iofile.txt") if not self.ooc else False,
             "synth_output": str(self.synth_output),
         }
         synth_json = json.dumps(synth, indent=4)
@@ -98,12 +102,16 @@ class Vivado:
         impl = {
             "synth_edif": "viv_synth.edif",
             "part": self.part,
-            "xdc": str(self.synth_output / (self.top + ".xdc")),
+            "xdc": str(self.synth_output / (self.top + ".xdc"))
+            if not self.ooc
+            else False,
             "dcp": "impl.dcp",
             "impl_edif": "viv_impl.edif",
             "netlist": "viv_impl.v",
             "util_file": "utilization.txt",
-            "bit": str(self.impl_output / (self.top + ".bit")),
+            "bit": str(self.impl_output / (self.top + ".bit"))
+            if not self.ooc
+            else False,
             "impl_output": str(self.impl_output),
             "synth_output": str(self.synth_output),
         }
@@ -116,7 +124,7 @@ class Vivado:
             with open(self.impl_output / "impl.json", "w") as f:
                 f.write(impl_json)
 
-    def __create_ninja_files(self):
+    def __create_build_snippets(self):
         self.__create_synth_ninja()
         self.__create_impl_ninja()
 
@@ -126,6 +134,7 @@ class Vivado:
             synth_ninja = chevron.render(
                 f,
                 {
+                    "in_context": not self.ooc,
                     "synth_output": str(self.synth_output),
                     "json": str(self.synth_output / "synth.json"),
                     "utils": str(UTILS_PATH),
@@ -145,6 +154,7 @@ class Vivado:
             impl_ninja = chevron.render(
                 f,
                 {
+                    "in_context": not self.ooc,
                     "impl_output": str(self.impl_output),
                     "synth_output": str(self.synth_output),
                     "json": str(self.impl_output / "impl.json"),

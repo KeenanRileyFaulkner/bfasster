@@ -18,9 +18,10 @@ class ApplicationRunner:
         # save the flow and design paths
         self.__parse_args(args)
 
-        # recursively create an array of template and flow files that can trigger reruns.
-        # currently, only one top level flow per program run is supported,
-        # so we can just use the first flow to get the ninja deps
+        # Recursively create an array of template and flow files that can trigger
+        # the build.ninja file being cleaned/rebuilt.
+        # Currently, only one top level flow per program run is supported,
+        # so we can just use the first flow to get the build file deps.
         self.deps = self.flows[0].add_ninja_deps()
 
         # populate the master ninja template
@@ -48,11 +49,7 @@ class ApplicationRunner:
     def __create_master_ninja(self):
         master_ninja = self.__populate_template()
 
-        # The flows need to be instantiated before the master ninja template is populated,
-        # and the ninja rule snippets for each flow type are added to ninja.build by the
-        # first flow of that type to be instantiated.
-        # Because build.ninja already exists, we append to rather than overwrite it
-        with open(ROOT_PATH / "build.ninja", "a") as f:
+        with open(ROOT_PATH / "build.ninja", "w") as f:
             f.write(master_ninja)
 
     def __populate_template(self):
