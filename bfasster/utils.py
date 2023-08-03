@@ -47,11 +47,11 @@ def only_once(func):
 def compare_json(old_file, new_json):
     """Takes an old json file a new json string and compares them to see if they are different"""
     if not (old_file).is_file():
-        return True
+        return False
 
     with open(old_file, "r") as f:
         old_json = json.load(f)
-        return sort_json(old_json) != sort_json(json.loads(new_json))
+        return sort_json(old_json) == sort_json(json.loads(new_json))
 
 
 def sort_json(item):

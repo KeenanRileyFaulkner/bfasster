@@ -91,9 +91,9 @@ class Vivado:
         synth_json = json.dumps(synth, indent=4)
 
         # check if the synth json file already exists and compare it to what we're about to write
-        need_to_overwrite = compare_json(self.synth_output / "synth.json", synth_json)
+        json_equivalent = compare_json(self.synth_output / "synth.json", synth_json)
 
-        if need_to_overwrite:
+        if not json_equivalent:
             with open(self.synth_output / "synth.json", "w") as f:
                 f.write(synth_json)
 
@@ -118,9 +118,9 @@ class Vivado:
         impl_json = json.dumps(impl, indent=4)
 
         # check if the impl json file already exists and compare it to what we're about to write
-        need_to_overwrite = compare_json(self.impl_output / "impl.json", impl_json)
+        json_equivalent = compare_json(self.impl_output / "impl.json", impl_json)
 
-        if need_to_overwrite:
+        if not json_equivalent:
             with open(self.impl_output / "impl.json", "w") as f:
                 f.write(impl_json)
 
