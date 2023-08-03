@@ -19,7 +19,7 @@ options:
     --design DESIGN     The design to run
     --flow FLOW         The flow to use for the specified design
 
-
+NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and flow.
 </code></pre>
 
 Alternatively, you can execute the ninja generation step entirely separate from the run step:
