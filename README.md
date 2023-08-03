@@ -22,7 +22,7 @@ options:
 NOTE: You must specify <em>either</em> a yaml file or <em>both</em> a design and flow.
 </code></pre>
 
-Alternatively, you can execute the ninja generation step entirely separate from the run step:
+Alternatively, you can execute the ninja generation step entirely separate from the run step for a single design:
 
 <pre style="padding-top:0">Usage:<code>
     python bfasster/flows/vivado.py [--design DESIGN]
