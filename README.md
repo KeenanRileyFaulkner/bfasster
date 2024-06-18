@@ -1,5 +1,8 @@
 # Bfasster: BFASST 2.0
 
+NOTE: As of 2024, this project is a demo of contributions towards a complete refactor of the [bfasst project](https://github.com/byuccl/bfasst). It is not maintained or kept up to date. When it was created, it served as a proof of concept, which was eventually adopted and implemented in bfasst in its entirety, by the creator.
+___
+
 This project removes a lot of overhead from the [bfasst project](https://github.com/byuccl/bfasst). 
 * It takes advantage of the ninja build tool to automatically handle job creation, up-to-date checking of dependencies, parallel processing, and io redirection. 
 * It uses chevron, the python implementation of the mustache templating engine to template the scripts used for common operations such as synthesis and implementation of designs, and even the running of other ninja files at the top level.
